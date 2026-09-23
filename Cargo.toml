@@ -1,0 +1,40 @@
+[package]
+name = "banter"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Tiny framework for line-based interactive services: one command table, served over stdio or TCP."
+authors = ["cstef <hi@cstef.dev>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/cestef/banter"
+readme = "README.md"
+keywords = ["repl", "tcp", "interactive", "ctf", "cli"]
+categories = ["command-line-interface", "network-programming"]
+
+[features]
+default = ["tcp"]
+# Thread-per-connection TCP server and `--listen` in `banter::run`.
+tcp = []
+# ANSI styling with palettes.
+style = []
+# Proof-of-work gate over SHA-256.
+pow = ["dep:sha2"]
+# In-memory transcripts and an interactive test client.
+testing = []
+full = ["tcp", "style", "pow", "testing"]
+
+[dependencies]
+sha2 = { version = "0.10", optional = true, default-features = false }
+
+[dev-dependencies]
+banter = { path = ".", features = ["full"] }
+
+[package.metadata.docs.rs]
+all-features = true
+
+[[example]]
+name = "guess"
+
+[[example]]
+name = "vault"
+required-features = ["style", "pow"]
