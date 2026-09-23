@@ -1,0 +1,15 @@
+[package]
+name = "banter-macros"
+description = "Procedural macros for banter: command tables from impl blocks, FromArg for enums."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+unsynn.workspace = true
