@@ -62,10 +62,12 @@ impl Client {
         Ok(self)
     }
 
+    /// What the session wrote before its first prompt.
     pub fn greeting(&self) -> &str {
         &self.greeting
     }
 
+    /// Write one line to the session.
     pub fn send(&mut self, line: &str) -> Result<()> {
         let writer = self.writer.as_mut().ok_or(Error::Eof)?;
         writer.write_all(line.as_bytes())?;

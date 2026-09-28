@@ -3,7 +3,12 @@
 // unsynn parsers return its own large error type by design.
 #![allow(clippy::result_large_err)]
 
-use unsynn::*;
+use unsynn::{
+    And, Assign, BraceGroup, BraceGroupContaining, BracketGroup, Colon, Comma, CommaDelimitedVec,
+    Cons, Delimiter, Either, Error, Ident, LiteralString, ParenthesisGroup,
+    ParenthesisGroupContaining, Parse, Parser, Pound, RArrow, Result, Semicolon, Spacing,
+    ToTokenIter, ToTokens, TokenIter, TokenStream, TokenStreamUntil, TokenTree, unsynn,
+};
 
 unsynn! {
     keyword KwImpl = "impl";

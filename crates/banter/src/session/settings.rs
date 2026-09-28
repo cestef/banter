@@ -11,12 +11,14 @@ pub const MAX_LINE: usize = 4096;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Newline {
     #[default]
+    /// `\n`.
     Lf,
     /// For telnet-ish peers.
     CrLf,
 }
 
 impl Newline {
+    /// The terminator's bytes.
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Lf => "\n",
@@ -29,8 +31,11 @@ impl Newline {
 /// one and hands every session a copy, which the session may then change.
 #[derive(Clone)]
 pub struct Settings {
+    /// How output is painted.
     pub style: Arc<dyn Style>,
+    /// Spacing for tables and blocks.
     pub layout: Layout,
+    /// Line terminator for output.
     pub newline: Newline,
     /// Longest input line accepted, in bytes. Longer ends the session.
     pub max_line: usize,

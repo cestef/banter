@@ -35,6 +35,7 @@ impl<S> Default for Hooks<S> {
 }
 
 impl<S> Hooks<S> {
+    /// Run every greeting in order, stopping at the first error.
     pub fn greet(&self, session: &mut Session, state: &mut S) -> Result<()> {
         self.greet.iter().try_for_each(|hook| hook(session, state))
     }
@@ -44,6 +45,7 @@ impl<S> Hooks<S> {
         self.before.iter().try_for_each(|hook| hook(ctx))
     }
 
+    /// Run every after hook with the command's outcome.
     pub fn after(&self, ctx: &mut Ctx<'_, S>, outcome: &Result<Flow>) -> Result<()> {
         self.after.iter().try_for_each(|hook| hook(ctx, outcome))
     }

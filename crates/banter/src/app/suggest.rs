@@ -2,6 +2,7 @@
 
 /// Picks the command a mistyped token most likely meant.
 pub trait Suggest: Send + Sync {
+    /// The name `token` was probably meant to be, if any.
     fn suggest(&self, token: &str, names: &[&str]) -> Option<String>;
 }
 
@@ -17,7 +18,9 @@ where
 /// Closest name by edit distance, if within `len / ratio` edits (at least `floor`).
 #[derive(Clone, Copy, Debug)]
 pub struct Distance {
+    /// Allowed edits are the token length divided by this.
     pub ratio: usize,
+    /// Edits always allowed, however short the token.
     pub floor: usize,
 }
 

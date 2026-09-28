@@ -1,6 +1,8 @@
 //! Procedural macros for [banter](https://docs.rs/banter). Use them through the
 //! `banter` crate, which re-exports both.
 
+#![warn(missing_docs)]
+
 mod commands;
 mod derive;
 mod grammar;

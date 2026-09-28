@@ -16,6 +16,7 @@ type Job = Box<dyn FnOnce() + Send>;
 
 /// Runs a session somewhere. The default spawns an OS thread per connection.
 pub trait Spawn: Send + Sync {
+    /// Run `job` to completion, off the accepting thread.
     fn spawn(&self, job: Job);
 }
 
@@ -38,6 +39,7 @@ impl Spawn for Threads {
     }
 }
 
+/// Serves an [`App`] to every connection a [`Listener`] yields.
 pub struct Server<S, L> {
     app: Arc<App<S>>,
     listener: L,
@@ -48,8 +50,10 @@ pub struct Server<S, L> {
 }
 
 impl<S: Send + 'static, L: Listener> Server<S, L> {
+    /// Default concurrent session limit.
     pub const LIMIT: usize = 64;
 
+    /// Serve `app` on `listener`, logging to stderr, one thread per session.
     pub fn new(app: impl Into<Arc<App<S>>>, listener: L) -> Self {
         Self {
             app: app.into(),
@@ -73,11 +77,13 @@ impl<S: Send + 'static, L: Listener> Server<S, L> {
         self
     }
 
+    /// Where events go. Defaults to [`Log`].
     pub fn observer(mut self, observer: impl Observer + 'static) -> Self {
         self.observer = Arc::new(observer);
         self
     }
 
+    /// How sessions are run. Defaults to [`Threads`].
     pub fn spawn(mut self, spawn: impl Spawn + 'static) -> Self {
         self.spawn = Box::new(spawn);
         self

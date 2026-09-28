@@ -4,6 +4,7 @@
 use super::{Command, Flow, Spec};
 use crate::output::{Cell, Role, Table};
 
+/// Constructors for the default commands.
 pub struct Builtin;
 
 impl Builtin {

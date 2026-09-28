@@ -14,13 +14,17 @@ use crate::{
 ///
 /// Derefs to [`Session`], so `ctx.say(..)` and friends work directly.
 pub struct Ctx<'a, S> {
+    /// The session this line came from.
     pub session: &'a mut Session,
+    /// The session's state.
     pub state: &'a mut S,
     /// The command name exactly as typed.
     pub name: &'a str,
+    /// Everything after the command name.
     pub args: &'a Args,
     /// The matched command; `None` inside a fallback.
     pub command: Option<&'a Command<S>>,
+    /// The app being served.
     pub app: &'a App<S>,
 }
 

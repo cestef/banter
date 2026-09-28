@@ -9,11 +9,13 @@ use std::{
 };
 
 #[derive(Default)]
+/// One value per type, shared across a session.
 pub struct Store {
     map: HashMap<TypeId, Box<dyn Any + Send>>,
 }
 
 impl Store {
+    /// An empty store.
     pub fn new() -> Self {
         Self::default()
     }
@@ -25,10 +27,12 @@ impl Store {
             .and_then(|old| old.downcast().ok().map(|b| *b))
     }
 
+    /// The stored `T`, if any.
     pub fn get<T: Send + 'static>(&self) -> Option<&T> {
         self.map.get(&TypeId::of::<T>())?.downcast_ref()
     }
 
+    /// The stored `T`, mutably, if any.
     pub fn get_mut<T: Send + 'static>(&mut self) -> Option<&mut T> {
         self.map.get_mut(&TypeId::of::<T>())?.downcast_mut()
     }
@@ -42,12 +46,14 @@ impl Store {
             .expect("keyed by its own type id")
     }
 
+    /// Take the stored `T` out.
     pub fn remove<T: Send + 'static>(&mut self) -> Option<T> {
         self.map
             .remove(&TypeId::of::<T>())
             .and_then(|b| b.downcast().ok().map(|b| *b))
     }
 
+    /// Whether a `T` is stored.
     pub fn contains<T: Send + 'static>(&self) -> bool {
         self.map.contains_key(&TypeId::of::<T>())
     }

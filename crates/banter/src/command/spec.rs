@@ -16,7 +16,9 @@ pub enum Kind {
 /// One named parameter.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Param {
+    /// Shown in help and errors.
     pub name: &'static str,
+    /// How many values it takes.
     pub kind: Kind,
 }
 
@@ -62,9 +64,13 @@ impl fmt::Display for Signature<'_> {
 /// ```
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Spec {
+    /// The primary name.
     pub name: &'static str,
+    /// Other names it answers to.
     pub aliases: Vec<&'static str>,
+    /// Parameters, in order.
     pub params: Vec<Param>,
+    /// One line for the help listing.
     pub help: &'static str,
     /// Heading this command is listed under in help.
     pub group: Option<&'static str>,
@@ -75,6 +81,7 @@ pub struct Spec {
 }
 
 impl Spec {
+    /// A command called `name`, taking nothing.
     pub fn new(name: &'static str) -> Self {
         Self {
             name,
@@ -82,11 +89,13 @@ impl Spec {
         }
     }
 
+    /// Answer to `alias` too.
     pub fn alias(mut self, alias: &'static str) -> Self {
         self.aliases.push(alias);
         self
     }
 
+    /// Append a parameter.
     pub fn param(mut self, name: &'static str, kind: Kind) -> Self {
         self.params.push(Param { name, kind });
         self
@@ -107,11 +116,13 @@ impl Spec {
         self.param(name, Kind::Rest)
     }
 
+    /// Set the help line.
     pub fn help(mut self, help: &'static str) -> Self {
         self.help = help;
         self
     }
 
+    /// List under this heading in help.
     pub fn group(mut self, group: &'static str) -> Self {
         self.group = Some(group);
         self
@@ -123,11 +134,13 @@ impl Spec {
         self
     }
 
+    /// Leave out of help.
     pub fn hidden(mut self) -> Self {
         self.hidden = true;
         self
     }
 
+    /// Name and parameters, for display.
     pub fn signature(&self) -> Signature<'_> {
         Signature(self)
     }
@@ -147,15 +160,19 @@ impl Spec {
             .or_else(|| self.params.last().filter(|p| p.kind == Kind::Rest))
     }
 
+    /// Whether [`Spec::tag`] was called with `T`.
     pub fn tagged<T: 'static>(&self) -> bool {
         self.tags.contains(&TypeId::of::<T>())
     }
 
     /// Whether `token` names this command, by name or alias.
     pub fn answers(&self, token: &str, fold: bool) -> bool {
-        let same = |name: &&str| match fold {
-            true => name.eq_ignore_ascii_case(token),
-            false => *name == token,
+        let same = |name: &&str| {
+            if fold {
+                name.eq_ignore_ascii_case(token)
+            } else {
+                *name == token
+            }
         };
         same(&self.name) || self.aliases.iter().any(same)
     }

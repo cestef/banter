@@ -180,6 +180,7 @@ impl<S: 'static> App<S> {
         self
     }
 
+    /// How lines split into tokens. Defaults to [`Words`].
     pub fn lexer(mut self, lexer: impl Lexer + 'static) -> Self {
         self.lexer = Box::new(lexer);
         self
@@ -191,26 +192,31 @@ impl<S: 'static> App<S> {
         self
     }
 
+    /// How errors reach the peer. Defaults to [`Report`].
     pub fn reporter(mut self, reporter: impl Reporter + 'static) -> Self {
         self.reporter = Box::new(reporter);
         self
     }
 
+    /// How output is painted. Defaults to [`Plain`](crate::Plain).
     pub fn style(mut self, style: impl Style + 'static) -> Self {
         self.settings.style = Arc::new(style);
         self
     }
 
+    /// How blocks and tables are laid out.
     pub fn layout(mut self, layout: Layout) -> Self {
         self.settings.layout = layout;
         self
     }
 
+    /// The line ending written after each line.
     pub fn newline(mut self, newline: Newline) -> Self {
         self.settings.newline = newline;
         self
     }
 
+    /// The longest line accepted from the peer, in bytes.
     pub fn max_line(mut self, max_line: usize) -> Self {
         self.settings.max_line = max_line;
         self
@@ -224,10 +230,12 @@ impl<S: 'static> App<S> {
 }
 
 impl<S> App<S> {
+    /// The command table.
     pub fn registry(&self) -> &Registry<S> {
         &self.registry
     }
 
+    /// The settings every session starts with.
     pub fn settings(&self) -> &Settings {
         &self.settings
     }

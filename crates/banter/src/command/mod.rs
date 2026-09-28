@@ -21,6 +21,7 @@ pub enum Flow {
 
 /// What a handler may return: a [`Flow`], or `()` to carry on.
 pub trait Outcome {
+    /// The flow this return value asks for.
     fn flow(self) -> Flow;
 }
 
@@ -39,6 +40,7 @@ impl Outcome for () {
 /// A state type that brings its own command table, usually derived with
 /// `#[banter::commands]` on an `impl` block.
 pub trait Commands: Sized {
+    /// Every command, in listing order.
     fn commands() -> Vec<Command<Self>>;
 }
 
@@ -51,6 +53,7 @@ pub struct Command<S> {
 }
 
 impl<S> Command<S> {
+    /// Bind `handler` to `spec`.
     pub fn new<F, O>(spec: impl Into<Spec>, handler: F) -> Self
     where
         F: Fn(&mut Ctx<'_, S>) -> Result<O> + Send + Sync + 'static,
@@ -62,6 +65,7 @@ impl<S> Command<S> {
         }
     }
 
+    /// What this command is called and takes.
     pub fn spec(&self) -> &Spec {
         &self.spec
     }
@@ -72,6 +76,7 @@ impl<S> Command<S> {
         self
     }
 
+    /// The primary name.
     pub fn name(&self) -> &'static str {
         self.spec.name
     }

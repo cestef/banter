@@ -14,6 +14,7 @@ pub enum Peer {
     /// stdio, an in-memory pipe, or anything else without an address.
     #[default]
     Local,
+    /// A TCP client.
     Tcp(SocketAddr),
     /// A Unix socket client; unnamed clients have no path.
     Unix(Option<PathBuf>),
@@ -38,9 +39,11 @@ impl fmt::Display for Peer {
 pub struct Info {
     /// Per-server connection number, starting at zero.
     pub id: u64,
+    /// Where it came from.
     pub peer: Peer,
 }
 
+/// A byte stream in each direction, and who is on the other end.
 pub struct Conn {
     pub(crate) reader: Box<dyn BufRead + Send>,
     pub(crate) writer: Box<dyn Write + Send>,
@@ -48,6 +51,7 @@ pub struct Conn {
 }
 
 impl Conn {
+    /// Buffer `reader` and pair it with `writer`, with id zero.
     pub fn new(
         reader: impl Read + Send + 'static,
         writer: impl Write + Send + 'static,
@@ -60,15 +64,18 @@ impl Conn {
         }
     }
 
+    /// This process's stdin and stdout.
     pub fn stdio() -> Self {
         Self::new(std::io::stdin(), std::io::stdout(), Peer::Local)
     }
 
+    /// Set the connection number.
     pub fn id(mut self, id: u64) -> Self {
         self.info.id = id;
         self
     }
 
+    /// Identity of this connection.
     pub fn info(&self) -> &Info {
         &self.info
     }

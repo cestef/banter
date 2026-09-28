@@ -2,6 +2,7 @@
 
 const DIGITS: &[u8; 16] = b"0123456789abcdef";
 
+/// Encode as lowercase hex.
 pub fn encode(bytes: impl AsRef<[u8]>) -> String {
     let bytes = bytes.as_ref();
     let mut out = String::with_capacity(bytes.len() * 2);
@@ -15,11 +16,13 @@ pub fn encode(bytes: impl AsRef<[u8]>) -> String {
 /// Decode, accepting an optional `0x` prefix and either case.
 pub fn decode(raw: &str) -> Result<Vec<u8>, String> {
     let body = raw.strip_prefix("0x").unwrap_or(raw).as_bytes();
-    if body.len() % 2 != 0 {
+    if !body.len().is_multiple_of(2) {
         return Err("odd number of hex digits".into());
     }
-    body.chunks_exact(2)
-        .map(|pair| Ok(nibble(pair[0])? << 4 | nibble(pair[1])?))
+    body.as_chunks::<2>()
+        .0
+        .iter()
+        .map(|&[hi, lo]| Ok(nibble(hi)? << 4 | nibble(lo)?))
         .collect()
 }
 

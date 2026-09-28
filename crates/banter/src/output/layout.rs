@@ -29,6 +29,7 @@ pub struct Cell {
 }
 
 impl Cell {
+    /// Left-aligned `text` painted as `role`.
     pub fn new(role: Role, text: impl Into<String>) -> Self {
         Self {
             text: text.into(),
@@ -43,10 +44,12 @@ impl Cell {
         self
     }
 
+    /// The unstyled text.
     pub fn text(&self) -> &str {
         &self.text
     }
 
+    /// How it is painted.
     pub fn role(&self) -> Role {
         self.role
     }
@@ -77,6 +80,7 @@ pub struct Table {
 }
 
 impl Table {
+    /// An empty table.
     pub fn new() -> Self {
         Self::default()
     }
@@ -93,6 +97,7 @@ impl Table {
         self
     }
 
+    /// Append a row.
     pub fn row<I, C>(mut self, cells: I) -> Self
     where
         I: IntoIterator<Item = C>,
@@ -102,6 +107,7 @@ impl Table {
         self
     }
 
+    /// Append a row in place.
     pub fn push<I, C>(&mut self, cells: I)
     where
         I: IntoIterator<Item = C>,
@@ -110,10 +116,12 @@ impl Table {
         self.rows.push(cells.into_iter().map(Into::into).collect());
     }
 
+    /// Whether there are no rows.
     pub fn is_empty(&self) -> bool {
         self.rows.is_empty()
     }
 
+    /// Every row so far.
     pub fn rows(&self) -> &[Vec<Cell>] {
         &self.rows
     }
@@ -165,29 +173,35 @@ pub struct Block {
 }
 
 impl Block {
+    /// An empty block.
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Override the session's [`Layout::indent`] for this block.
     pub fn indent(mut self, indent: usize) -> Self {
         self.table = self.table.indent(indent);
         self
     }
 
+    /// Override the session's [`Layout::gap`] for this block.
     pub fn gap(mut self, gap: usize) -> Self {
         self.table = self.table.gap(gap);
         self
     }
 
+    /// Append a line.
     pub fn entry(mut self, key: impl Into<String>, value: impl Into<Cell>) -> Self {
         self.push(key, value);
         self
     }
 
+    /// Append a line in place.
     pub fn push(&mut self, key: impl Into<String>, value: impl Into<Cell>) {
         self.table.push([Cell::new(Role::Key, key), value.into()]);
     }
 
+    /// One string per line.
     pub fn render(&self, style: &dyn Style, layout: Layout) -> Vec<String> {
         self.table.render(style, layout)
     }

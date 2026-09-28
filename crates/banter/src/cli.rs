@@ -16,7 +16,9 @@ use crate::{app::App, session::Conn};
 /// Where to serve.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Addr {
+    /// A TCP `host:port`.
     Tcp(String),
+    /// A Unix socket path.
     Unix(PathBuf),
 }
 
@@ -70,14 +72,20 @@ impl Key {
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
+/// How to serve, from flags and the environment.
 pub struct Options {
+    /// Where to listen; `None` serves one stdio session.
     pub listen: Option<Addr>,
+    /// Concurrent sessions.
     pub limit: Option<usize>,
+    /// Idle timeout; `Some(None)` disables it.
     pub idle: Option<Option<Duration>>,
+    /// `--help` was given.
     pub help: bool,
 }
 
 impl Options {
+    /// Printed for `--help` and after parse errors.
     pub const USAGE: &str = "usage: [--listen ADDR] [--limit N] [--idle SECS]\n\n\
         Without --listen, serves one session on stdin/stdout.\n\
         ADDR is 1337, :1337, host:port or unix:PATH.";
@@ -140,7 +148,11 @@ impl Options {
         };
         match key {
             Key::Listen => self.listen = Some(Addr::parse(value)),
-            Key::Limit => self.limit = Some(number()? as usize),
+            Key::Limit => {
+                let n = number()?;
+                self.limit =
+                    Some(usize::try_from(n).map_err(|_| format!("'{value}' is too large"))?);
+            }
             Key::Idle => {
                 self.idle = Some(Some(number()?).filter(|&s| s > 0).map(Duration::from_secs));
             }
@@ -164,7 +176,7 @@ impl Options {
             println!("{}", Self::USAGE);
             return Ok(());
         }
-        match self.listen.clone() {
+        match &self.listen {
             None => app.serve(Conn::stdio()).map_err(|e| e.to_string()),
             #[cfg(feature = "net")]
             Some(addr) => self.bind(app, addr),
@@ -174,13 +186,13 @@ impl Options {
     }
 
     #[cfg(feature = "net")]
-    fn bind<S: Send + 'static>(&self, app: App<S>, addr: Addr) -> Result<(), String> {
+    fn bind<S: Send + 'static>(&self, app: App<S>, addr: &Addr) -> Result<(), String> {
         use crate::net::{Server, Tcp};
 
         let idle = self.idle.unwrap_or(Some(Tcp::IDLE));
         let limit = self.limit.unwrap_or(Server::<S, Tcp>::LIMIT);
         let failed = |e: std::io::Error| format!("{addr:?}: {e}");
-        match &addr {
+        match addr {
             Addr::Tcp(host) => {
                 let listener = Tcp::bind(host).map_err(failed)?.idle(idle);
                 Server::new(app, listener)

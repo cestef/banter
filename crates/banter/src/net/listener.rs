@@ -10,6 +10,7 @@ use crate::session::{Conn, Peer};
 
 /// Anything that yields connections, one blocking `accept` at a time.
 pub trait Listener: Send {
+    /// Wait for the next connection.
     fn accept(&mut self) -> io::Result<Conn>;
 
     /// Where it listens, for logs.
@@ -23,8 +24,10 @@ pub struct Tcp {
 }
 
 impl Tcp {
+    /// Default idle timeout.
     pub const IDLE: Duration = Duration::from_secs(120);
 
+    /// Listen on `addr`, with the default idle timeout.
     pub fn bind(addr: impl ToSocketAddrs) -> io::Result<Self> {
         Ok(Self::from(TcpListener::bind(addr)?))
     }
@@ -35,6 +38,7 @@ impl Tcp {
         self
     }
 
+    /// Wrap an accepted stream, applying `idle` to reads and writes.
     pub fn conn(stream: TcpStream, idle: Option<Duration>) -> io::Result<Conn> {
         stream.set_nodelay(true)?;
         stream.set_read_timeout(idle)?;
@@ -88,15 +92,18 @@ mod unix {
     }
 
     impl Unix {
+        /// Listen on `path`, with the default idle timeout.
         pub fn bind(path: impl AsRef<Path>) -> io::Result<Self> {
             Ok(Self::from(UnixListener::bind(path)?))
         }
 
+        /// Drop a peer silent for this long. `None` waits forever.
         pub fn idle(mut self, idle: Option<Duration>) -> Self {
             self.idle = idle;
             self
         }
 
+        /// Wrap an accepted stream, applying `idle` to reads and writes.
         pub fn conn(stream: UnixStream, idle: Option<Duration>) -> io::Result<Conn> {
             stream.set_read_timeout(idle)?;
             stream.set_write_timeout(idle)?;

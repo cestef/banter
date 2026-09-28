@@ -8,29 +8,48 @@ use super::{Role, Style};
 /// and truecolour escapes.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Color {
+    /// Colour 0.
     Black,
+    /// Colour 1.
     Red,
+    /// Colour 2.
     Green,
+    /// Colour 3.
     Yellow,
+    /// Colour 4.
     Blue,
+    /// Colour 5.
     Magenta,
+    /// Colour 6.
     Cyan,
+    /// Colour 7.
     White,
+    /// The bright variant of a standard colour.
     Bright(Base),
+    /// An entry of the 256-colour palette.
     Indexed(u8),
+    /// Truecolour.
     Rgb(u8, u8, u8),
 }
 
 /// A standard colour, for [`Color::Bright`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Base {
+    /// Colour 0.
     Black,
+    /// Colour 1.
     Red,
+    /// Colour 2.
     Green,
+    /// Colour 3.
     Yellow,
+    /// Colour 4.
     Blue,
+    /// Colour 5.
     Magenta,
+    /// Colour 6.
     Cyan,
+    /// Colour 7.
     White,
 }
 
@@ -69,12 +88,19 @@ impl Color {
 /// Text attributes, applied in declaration order.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Attr {
+    /// Bold or bright.
     Bold = 1,
+    /// Faint.
     Dim = 2,
+    /// Italic.
     Italic = 3,
+    /// Underlined.
     Underline = 4,
+    /// Slow blink.
     Blink = 5,
+    /// Foreground and background swapped.
     Reverse = 7,
+    /// Crossed out.
     Strike = 9,
 }
 
@@ -87,20 +113,24 @@ pub struct Paint {
 }
 
 impl Paint {
+    /// Nothing set.
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Foreground colour.
     pub fn fg(mut self, color: Color) -> Self {
         self.fg = Some(color);
         self
     }
 
+    /// Background colour.
     pub fn bg(mut self, color: Color) -> Self {
         self.bg = Some(color);
         self
     }
 
+    /// Add an attribute, once.
     pub fn attr(mut self, attr: Attr) -> Self {
         if !self.attrs.contains(&attr) {
             self.attrs.push(attr);
@@ -108,22 +138,27 @@ impl Paint {
         self
     }
 
+    /// Add [`Attr::Bold`].
     pub fn bold(self) -> Self {
         self.attr(Attr::Bold)
     }
 
+    /// Add [`Attr::Dim`].
     pub fn dim(self) -> Self {
         self.attr(Attr::Dim)
     }
 
+    /// Add [`Attr::Italic`].
     pub fn italic(self) -> Self {
         self.attr(Attr::Italic)
     }
 
+    /// Add [`Attr::Underline`].
     pub fn underline(self) -> Self {
         self.attr(Attr::Underline)
     }
 
+    /// Whether it changes nothing.
     pub fn is_empty(&self) -> bool {
         self.attrs.is_empty() && self.fg.is_none() && self.bg.is_none()
     }
@@ -183,6 +218,7 @@ impl Palette {
         Self::default()
     }
 
+    /// The default: colours for every built-in role but [`Role::Text`].
     pub fn colour() -> Self {
         Self::empty()
             .set(Role::Prompt, Paint::new().bold().fg(Color::Cyan))
@@ -219,6 +255,7 @@ impl Palette {
         self
     }
 
+    /// How `role` looks, if it is styled at all.
     pub fn get(&self, role: Role) -> Option<&Paint> {
         self.entries
             .iter()

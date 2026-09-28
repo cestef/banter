@@ -4,6 +4,7 @@ use crate::{output::Role, session::Session};
 
 type Render<S> = Box<dyn Fn(&Session, &S) -> String + Send + Sync>;
 
+/// The prompt written before every read.
 pub enum Prompt<S> {
     /// The same text every time.
     Text(String),
@@ -12,6 +13,7 @@ pub enum Prompt<S> {
 }
 
 impl<S> Prompt<S> {
+    /// Compute the prompt from the session and state.
     pub fn dynamic<F>(render: F) -> Self
     where
         F: Fn(&Session, &S) -> String + Send + Sync + 'static,

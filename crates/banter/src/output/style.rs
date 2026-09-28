@@ -34,7 +34,9 @@ pub enum Role {
     Custom(u16),
 }
 
+/// Decides what each [`Role`] looks like on the wire.
 pub trait Style: Send + Sync {
+    /// `text` dressed as `role`.
     fn paint<'a>(&self, role: Role, text: &'a str) -> Cow<'a, str>;
 }
 

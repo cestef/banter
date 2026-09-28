@@ -30,7 +30,8 @@ banter-macros = { workspace = true, optional = true }
 sha2 = { workspace = true, optional = true }
 
 [dev-dependencies]
-banter = { workspace = true, features = ["full"] }
+# Path only, so publishing strips it; tests and examples see every feature.
+banter = { path = ".", features = ["full"] }
 
 [package.metadata.docs.rs]
 all-features = true

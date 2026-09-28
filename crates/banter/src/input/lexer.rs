@@ -6,6 +6,7 @@ use crate::error::{Error, Result};
 ///
 /// Returning `Ok(None)` skips the line silently (blank lines, comments).
 pub trait Lexer: Send + Sync {
+    /// Tokens of `line`, or `None` to skip it.
     fn split(&self, line: &str) -> Result<Option<Vec<String>>>;
 }
 
@@ -21,6 +22,7 @@ where
 /// Split on whitespace. Lines starting with the comment marker are skipped.
 #[derive(Clone, Copy, Debug)]
 pub struct Words {
+    /// Lines starting with this are skipped.
     pub comment: Option<char>,
 }
 
@@ -44,6 +46,7 @@ impl Lexer for Words {
 /// character outside single quotes. An unterminated quote is a recoverable error.
 #[derive(Clone, Copy, Debug)]
 pub struct Shell {
+    /// Lines starting with this are skipped.
     pub comment: Option<char>,
 }
 
@@ -75,13 +78,12 @@ impl Lexer for Shell {
                         .ok_or_else(|| Error::Syntax("trailing backslash".into()))?;
                     current.get_or_insert_default().push(next);
                 }
-                (Some(_), c) => current.get_or_insert_default().push(c),
                 (None, '"' | '\'') => {
                     quote = Some(c);
                     current.get_or_insert_default();
                 }
                 (None, c) if c.is_whitespace() => tokens.extend(current.take()),
-                (None, c) => current.get_or_insert_default().push(c),
+                (_, c) => current.get_or_insert_default().push(c),
             }
         }
         if let Some(q) = quote {

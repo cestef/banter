@@ -26,6 +26,7 @@ pub struct Session {
 }
 
 impl Session {
+    /// A fresh session over `conn`, with an empty store.
     pub fn new(conn: Conn, settings: Settings) -> Self {
         Self {
             conn,
@@ -34,6 +35,7 @@ impl Session {
         }
     }
 
+    /// Identity of the connection.
     pub fn info(&self) -> &Info {
         &self.conn.info
     }
@@ -43,10 +45,12 @@ impl Session {
         &self.store
     }
 
+    /// Mutable access to the [`Store`].
     pub fn store_mut(&mut self) -> &mut Store {
         &mut self.store
     }
 
+    /// Current settings.
     pub fn settings(&self) -> &Settings {
         &self.settings
     }
@@ -56,14 +60,17 @@ impl Session {
         &mut self.settings
     }
 
+    /// The current style.
     pub fn style(&self) -> &dyn Style {
         &*self.settings.style
     }
 
+    /// Swap the style from here on.
     pub fn restyle(&mut self, style: impl Style + 'static) {
         self.settings.style = std::sync::Arc::new(style);
     }
 
+    /// `text` painted as `role`, without writing it.
     pub fn paint(&self, role: Role, text: &str) -> String {
         self.settings.style.paint(role, text).into_owned()
     }
@@ -115,22 +122,27 @@ impl Session {
         self.lines(&[painted])
     }
 
+    /// One line of [`Role::Text`].
     pub fn say(&mut self, line: impl AsRef<str>) -> Result<()> {
         self.styled(Role::Text, line)
     }
 
+    /// One line of [`Role::Ok`].
     pub fn ok(&mut self, line: impl AsRef<str>) -> Result<()> {
         self.styled(Role::Ok, line)
     }
 
+    /// One line of [`Role::Warn`].
     pub fn warn(&mut self, line: impl AsRef<str>) -> Result<()> {
         self.styled(Role::Warn, line)
     }
 
+    /// One line of [`Role::Dim`].
     pub fn note(&mut self, line: impl AsRef<str>) -> Result<()> {
         self.styled(Role::Dim, line)
     }
 
+    /// An empty line.
     pub fn blank(&mut self) -> Result<()> {
         self.lines(&[String::new()])
     }
@@ -140,11 +152,13 @@ impl Session {
         self.block(&Block::new().entry(key, value))
     }
 
+    /// A [`Block`], laid out by the session's [`Layout`](crate::Layout).
     pub fn block(&mut self, block: &Block) -> Result<()> {
         let lines = block.render(self.style(), self.settings.layout);
         self.lines(&lines)
     }
 
+    /// A [`Table`], laid out by the session's [`Layout`](crate::Layout).
     pub fn table(&mut self, table: &Table) -> Result<()> {
         let lines = table.render(self.style(), self.settings.layout);
         self.lines(&lines)

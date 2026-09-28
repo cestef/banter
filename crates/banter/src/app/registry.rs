@@ -40,6 +40,7 @@ impl<S> Registry<S> {
         self.builtins.retain(|c| c.name() != name);
     }
 
+    /// Drop every built-in.
     pub fn clear_builtins(&mut self) {
         self.builtins.clear();
     }
@@ -49,14 +50,17 @@ impl<S> Registry<S> {
         self.fold = fold;
     }
 
+    /// The command this token names, by name or alias.
     pub fn find(&self, token: &str) -> Option<&Command<S>> {
         self.all().find(|c| c.spec().answers(token, self.fold))
     }
 
+    /// Every command, built-ins last.
     pub fn all(&self) -> impl Iterator<Item = &Command<S>> {
         self.commands.iter().chain(&self.builtins)
     }
 
+    /// Every command not marked hidden.
     pub fn visible(&self) -> impl Iterator<Item = &Command<S>> {
         self.all().filter(|c| !c.spec().hidden)
     }

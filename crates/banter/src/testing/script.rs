@@ -25,6 +25,7 @@ pub struct Script {
 }
 
 impl Script {
+    /// Feed `input` as is; end every line with `\n`.
     pub fn new(input: impl Into<String>) -> Self {
         Self {
             input: input.into(),
@@ -38,11 +39,13 @@ impl Script {
         self
     }
 
+    /// Pretend to be this connection number.
     pub fn id(mut self, id: u64) -> Self {
         self.id = id;
         self
     }
 
+    /// Serve one session over the input and return everything it wrote.
     pub fn run<S>(&self, app: &App<S>) -> Result<String> {
         let out = Pipe::default();
         let conn = Conn::new(

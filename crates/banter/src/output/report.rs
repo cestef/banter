@@ -11,6 +11,7 @@ use crate::{
 /// Renders an error to the peer. The app decides afterwards whether the session
 /// continues, so a reporter only ever writes.
 pub trait Reporter: Send + Sync {
+    /// Write `error` to the peer.
     fn report(&self, session: &mut Session, error: &Error) -> Result<()>;
 }
 
@@ -44,6 +45,7 @@ impl Default for Report {
 }
 
 impl Report {
+    /// The default reporter.
     pub fn new() -> Self {
         Self::default()
     }
@@ -69,9 +71,10 @@ impl Report {
 
 impl Reporter for Report {
     fn report(&self, session: &mut Session, error: &Error) -> Result<()> {
-        let message = match error.recoverable() || error.benign() {
-            true => error.to_string(),
-            false => self.fatal.to_string(),
+        let message = if error.recoverable() || error.benign() {
+            error.to_string()
+        } else {
+            self.fatal.to_string()
         };
         let indent = " ".repeat(session.settings().layout.indent);
         let mut lines = vec![session.paint(Role::Error, &[&*self.label, &message].concat())];

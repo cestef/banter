@@ -24,18 +24,25 @@ type Prefix = Box<dyn Fn(&Info) -> String + Send + Sync>;
 /// One puzzle: find `s` with `sha256(prefix || s)` starting with `bits` zero bits.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Challenge {
+    /// Random text the answer is appended to.
     pub prefix: String,
+    /// Leading zero bits the digest needs.
     pub bits: u32,
 }
 
 impl Challenge {
+    /// Whether `answer` solves this challenge.
     pub fn verify(&self, answer: &str) -> bool {
         Pow::zeros(&self.prefix, answer) >= self.bits
     }
 
     /// Brute-force an answer. Expected cost is `2^bits` hashes.
+    ///
+    /// # Panics
+    ///
+    /// If no decimal number up to `u64::MAX` is an answer.
     pub fn solve(&self) -> String {
-        (0u64..)
+        (0..=u64::MAX)
             .map(|n| n.to_string())
             .find(|answer| self.verify(answer))
             .expect("the search space is not exhausted")
@@ -52,6 +59,7 @@ impl fmt::Display for Challenge {
     }
 }
 
+/// A [`Gate`] that makes each peer solve a [`Challenge`] first.
 pub struct Pow {
     bits: u32,
     prompt: Cow<'static, str>,
@@ -61,6 +69,11 @@ pub struct Pow {
 }
 
 impl Pow {
+    /// Require `bits` leading zero bits; `0` lets everyone through.
+    ///
+    /// # Panics
+    ///
+    /// If `bits` is above 64.
     pub fn new(bits: u32) -> Self {
         assert!(
             bits <= 64,
@@ -75,10 +88,12 @@ impl Pow {
         }
     }
 
+    /// The difficulty.
     pub fn bits(&self) -> u32 {
         self.bits
     }
 
+    /// Written before reading the answer.
     pub fn prompt(mut self, prompt: impl Into<Cow<'static, str>>) -> Self {
         self.prompt = prompt.into();
         self

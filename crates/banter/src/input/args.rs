@@ -12,6 +12,7 @@ pub trait FromArg: Sized {
     /// Name of the expected shape, shown in errors.
     const KIND: &'static str;
 
+    /// Parse one token, or say why it does not fit.
     fn from_arg(raw: &str) -> Result<Self, String>;
 }
 
@@ -22,22 +23,27 @@ pub struct Args {
 }
 
 impl Args {
+    /// Wrap already split tokens.
     pub fn new(tokens: Vec<String>) -> Self {
         Self { tokens }
     }
 
+    /// How many tokens there are.
     pub fn len(&self) -> usize {
         self.tokens.len()
     }
 
+    /// Whether there are no tokens.
     pub fn is_empty(&self) -> bool {
         self.tokens.is_empty()
     }
 
+    /// The raw token at `index`.
     pub fn token(&self, index: usize) -> Option<&str> {
         self.tokens.get(index).map(String::as_str)
     }
 
+    /// Every raw token.
     pub fn tokens(&self) -> &[String] {
         &self.tokens
     }

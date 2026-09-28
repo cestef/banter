@@ -13,22 +13,28 @@ type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 #[derive(Debug)]
 #[non_exhaustive]
+/// Everything that can go wrong in a session.
 pub enum Error {
     /// A handler refused the request. Session continues.
     Reject(String),
     /// No command by that name.
     UnknownCommand {
+        /// The token as typed.
         got: String,
+        /// A close match, if any.
         suggestion: Option<String>,
     },
     /// Too few arguments for this command.
     Usage(Box<Spec>),
     /// An argument failed to parse.
     BadArg {
+        /// Position among the arguments, from zero.
         index: usize,
         /// The parameter's name, when the command declares one there.
         param: Option<&'static str>,
+        /// The expected shape, from [`FromArg::KIND`](crate::FromArg::KIND).
         kind: &'static str,
+        /// Why it failed.
         reason: String,
     },
     /// The line could not be tokenized, e.g. an unterminated quote.
@@ -41,16 +47,19 @@ pub enum Error {
     Timeout,
     /// The peer hung up.
     Eof,
+    /// Reading or writing failed. Ends the session.
     Io(io::Error),
     /// Anything else. Ends the session.
     Other(BoxError),
 }
 
 impl Error {
+    /// [`Error::Reject`] with this message.
     pub fn reject(message: impl Into<String>) -> Self {
         Self::Reject(message.into())
     }
 
+    /// [`Error::Denied`] with this message.
     pub fn denied(message: impl Into<String>) -> Self {
         Self::Denied(message.into())
     }
@@ -160,6 +169,7 @@ impl fmt::Display for Hint {
     }
 }
 
+/// Result defaulting to [`Error`].
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 /// Refuse the current request and keep the session alive.

@@ -1,6 +1,9 @@
 [package]
 name = "banter-macros"
 description = "Procedural macros for banter: command tables from impl blocks, FromArg for enums."
+readme = "README.md"
+keywords = ["repl", "macros", "cli"]
+categories = ["command-line-interface"]
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

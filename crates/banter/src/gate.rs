@@ -7,7 +7,9 @@
 
 use crate::{error::Result, session::Session};
 
+/// A check run on each connection before its session starts.
 pub trait Gate: Send + Sync {
+    /// Let the session through, or return why not.
     fn admit(&self, session: &mut Session) -> Result<()>;
 }
 

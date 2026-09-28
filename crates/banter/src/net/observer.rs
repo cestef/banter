@@ -8,7 +8,9 @@ use crate::{error::Error, session::Info};
 #[derive(Debug)]
 #[non_exhaustive]
 pub enum Event<'a> {
+    /// The server is up at this address.
     Listening(&'a str),
+    /// A session started.
     Accepted(&'a Info),
     /// Turned away at the connection limit.
     Busy(&'a Info),
@@ -18,7 +20,9 @@ pub enum Event<'a> {
     Failed(&'a io::Error),
 }
 
+/// Receives every [`Event`] a server emits.
 pub trait Observer: Send + Sync {
+    /// Handle one event. Runs on the accepting or serving thread.
     fn event(&self, event: Event<'_>);
 }
 

@@ -48,6 +48,8 @@
 //! - `pow`: [`pow::Pow`], a proof-of-work [`Gate`].
 //! - `testing`: [`testing::Script`] and [`testing::Client`].
 
+#![warn(missing_docs)]
+
 pub mod app;
 pub mod cli;
 pub mod command;

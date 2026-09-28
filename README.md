@@ -46,7 +46,7 @@ error: unknown command 'gues'
 guess> guess
 error: usage: guess <n>
 guess> guess 50
-higher
+lower
 ```
 
 ## Commands
@@ -71,7 +71,8 @@ Without macros, the same is `app.command(Spec::new("guess").arg("n"), |ctx| ...)
 
 ## Extension points
 
-Every policy is a trait with a default, and closures implement all of them.
+Every policy is a trait with a default, and closures implement all of them but
+`net::Listener`.
 
 | Trait | Default | Decides |
 |---|---|---|
